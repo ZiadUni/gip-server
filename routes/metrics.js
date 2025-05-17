@@ -17,7 +17,7 @@ const parseDateRange = (range) => {
   return null;
 };
 
-router.get('/metrics-data', verifyToken, requiredRole('staff'), async (req, res) => {
+router.get('/metrics-data', verifyToken, requireRole('staff'), async (req, res) => {
   const { range = '7d', type = 'all' } = req.query;
   const dateFrom = parseDateRange(range);
 

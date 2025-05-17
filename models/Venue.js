@@ -8,12 +8,12 @@ const venueSchema = new mongoose.Schema({
   date: String,
   capacity: Number,
   availability: String,
-  status: {
-    type: String,
-    default: 'Available'
-  },
+  status: { type: String, default: 'Available' },
   price: String,
-  image: String
+  image: String,
+  details: {
+    slots: [String]
+  }
 });
 
 module.exports = mongoose.model('Venue', venueSchema);

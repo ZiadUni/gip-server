@@ -6,6 +6,7 @@
 
 const express = require('express');
 const Booking = require('../models/Booking');
+const Venue = require('../models/Venue');
 const router = express.Router();
 
 router.get('/availability/venue/:id', async (req, res) => {

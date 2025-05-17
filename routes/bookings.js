@@ -3,11 +3,12 @@
 const express = require('express');
 const Booking = require('../models/Booking');
 const Notification = require('../models/Notification');
-const Venue = require('../models/Venue'); // ⬅️ NEW
+const Venue = require('../models/Venue');
 const verifyToken = require('../middleware/auth');
 
 const router = express.Router();
 
+// Create a booking
 router.post('/bookings', verifyToken, async (req, res) => {
   const { type, itemId, details } = req.body;
 
@@ -30,8 +31,27 @@ router.post('/bookings', verifyToken, async (req, res) => {
 
     await booking.save();
 
+    // Update venue status if all its time slots are now booked
     if (type === 'venue') {
-      await Venue.findByIdAndUpdate(itemId, { status: 'Booked' });
+      const venue = await Venue.findById(itemId);
+      const allSlots = venue.details?.slots?.length || 1;
+
+      const relatedBookings = await Booking.find({
+        itemId,
+        status: 'confirmed',
+        type: 'venue'
+      });
+
+      const bookedTimes = new Set(relatedBookings.flatMap(b => {
+        if (Array.isArray(b.details?.slots)) return b.details.slots;
+        if (typeof b.details?.time === 'string') return [b.details.time];
+        return [];
+      }));
+
+      if (bookedTimes.size >= allSlots) {
+        venue.status = 'Booked';
+        await venue.save();
+      }
     }
 
     res.status(201).json({ message: 'Booking saved', booking });
@@ -41,6 +61,7 @@ router.post('/bookings', verifyToken, async (req, res) => {
   }
 });
 
+// Get bookings for the logged-in user
 router.get('/bookings', verifyToken, async (req, res) => {
   try {
     const bookings = await Booking.find({ user: req.user.id }).sort({ createdAt: -1 });
@@ -51,6 +72,7 @@ router.get('/bookings', verifyToken, async (req, res) => {
   }
 });
 
+// Cancel a booking
 router.delete('/bookings/:id', verifyToken, async (req, res) => {
   try {
     const booking = await Booking.findOne({ _id: req.params.id, user: req.user.id });
@@ -63,7 +85,15 @@ router.delete('/bookings/:id', verifyToken, async (req, res) => {
     await booking.save();
 
     if (booking.type === 'venue') {
-      await Venue.findByIdAndUpdate(booking.itemId, { status: 'Available' });
+      const activeBookings = await Booking.find({
+        itemId: booking.itemId,
+        status: 'confirmed',
+        type: 'venue'
+      });
+
+      if (activeBookings.length === 0) {
+        await Venue.findByIdAndUpdate(booking.itemId, { status: 'Available' });
+      }
     }
 
     const matchingNotifications = await Notification.find({

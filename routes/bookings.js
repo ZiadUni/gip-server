@@ -18,6 +18,10 @@ router.post('/bookings', verifyToken, async (req, res) => {
     return res.status(400).json({ error: 'Missing booking details' });
   }
 
+  if (type === 'venue' && req.user.role !== 'organizer' && req.user.role !== 'staff') {
+    return res.status(403).json({ error: 'Only organizers or staff can book venues' });
+  }
+
   try {
     const booking = new Booking({
       user: req.user.id,
@@ -63,9 +67,6 @@ router.delete('/bookings/:id', verifyToken, async (req, res) => {
     console.log('✅ Booking cancelled:', booking._id);
     console.log('➡️  Booking itemId:', booking.itemId);
     console.log('➡️  Booking type:', booking.type);
-
-    const allPending = await Notification.find({ status: 'pending' });
-    console.log('🔍 All pending notifications:', allPending);
 
     const matchingNotifications = await Notification.find({
       itemId: booking.itemId,

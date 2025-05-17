@@ -8,6 +8,7 @@ const express = require('express');
 const router = express.Router();
 const Booking = require('../models/Booking');
 const verifyToken = require('../middleware/auth');
+const requireRole = require('../middleware/requireRole');
 
 const parseDateRange = (range) => {
   const now = new Date();
@@ -16,7 +17,7 @@ const parseDateRange = (range) => {
   return null;
 };
 
-router.get('/metrics-data', verifyToken, async (req, res) => {
+router.get('/metrics-data', verifyToken, requiredRole('staff'), async (req, res) => {
   const { range = '7d', type = 'all' } = req.query;
   const dateFrom = parseDateRange(range);
 

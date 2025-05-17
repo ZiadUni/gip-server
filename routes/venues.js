@@ -7,7 +7,7 @@ const Venue = require('../models/Venue');
 const verifyToken = require('../middleware/auth');
 const requireRole = require('../middleware/requireRole');
 
-router.get('/venues', verifyToken, requireRole('staff'), async (req, res) => {
+router.get('/venues', verifyToken, async (req, res) => {
   try {
     const venues = await Venue.find().sort({ date: 1 });
     res.json(venues);

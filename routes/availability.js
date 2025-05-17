@@ -13,6 +13,7 @@ router.get('/availability/venue/:id', async (req, res) => {
   try {
     const [name, rawDate] = decodeURIComponent(req.params.id).split('__');
     const date = rawDate;
+    console.log('Looking for:', name, date);
     const venue = await Venue.findOne({ name, date });
     if (!venue) return res.status(404).json({ error: 'Venue not found' });
 

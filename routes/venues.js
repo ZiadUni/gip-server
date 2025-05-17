@@ -7,11 +7,31 @@ const Venue = require('../models/Venue');
 const verifyToken = require('../middleware/auth');
 const requireRole = require('../middleware/requireRole');
 
-router.get('/venues', verifyToken, async (req, res) => {
+router.get('/venues', async (req, res) => {
   try {
     const venues = await Venue.find().sort({ date: 1 });
-    res.json(venues);
+    const bookings = await Booking.find({ type: 'venue', status: 'confirmed' });
+
+    const updatedVenues = venues.map(venue => {
+      const allSlots = venue.details?.slots || [];
+      const totalSlots = allSlots.length;
+
+      const venueBookings = bookings.filter(b => b.itemId == venue._id);
+      const bookedSlotTimes = new Set(venueBookings.flatMap(b =>
+        Array.isArray(b.details?.slots) ? b.details.slots : [b.details?.time]
+      ));
+
+      const isFullyBooked = bookedSlotTimes.size >= totalSlots;
+
+      return {
+        ...venue.toObject(),
+        status: isFullyBooked ? 'Booked' : 'Available'
+      };
+    });
+
+    res.json(updatedVenues);
   } catch (err) {
+    console.error('Venue status update error:', err);
     res.status(500).json({ error: 'Failed to load venues' });
   }
 });

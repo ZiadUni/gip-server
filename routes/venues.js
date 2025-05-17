@@ -44,7 +44,13 @@ router.post('/venues', verifyToken, requireRole('staff'), async (req, res) => {
     return res.status(400).json({ error: 'Missing venue name or date' });
   }
 
-  const defaultSlots = ["8:00", "10:00", "12:00", "14:00", "16:00"];
+  const defaultSlots = [
+    "8:00 AM - 10:00 AM",
+    "10:00 AM - 12:00 PM",
+    "12:00 PM - 2:00 PM",
+    "2:00 PM - 4:00 PM",
+    "4:00 PM - 6:00 PM"
+  ];
 
   try {
     const venue = new Venue({

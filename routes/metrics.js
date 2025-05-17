@@ -10,33 +10,43 @@ const Booking = require('../models/Booking');
 const verifyToken = require('../middleware/auth');
 const requireRole = require('../middleware/requireRole');
 
-const parseDateRange = (range) => {
-  const now = new Date();
-  if (range === '7d') return new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
-  if (range === '30d') return new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
-  return null;
-};
-
 router.get('/metrics-data', verifyToken, requireRole('staff'), async (req, res) => {
-  const { range = '7d', type = 'all' } = req.query;
-  const dateFrom = parseDateRange(range);
+  const { from, to, type = 'all', status = 'current' } = req.query;
+
+  const fromDate = from ? new Date(from) : null;
+  const toDate = to ? new Date(to) : null;
 
   const query = {
-    ...(dateFrom && { createdAt: { $gte: dateFrom } }),
+    ...(fromDate && { createdAt: { $gte: fromDate } }),
+    ...(toDate && { createdAt: { ...(fromDate ? { $gte: fromDate } : {}), $lte: toDate } }),
     ...(type !== 'all' && { type })
   };
 
   try {
-    const bookings = await Booking.find(query);
+    const bookings = await Booking.find(query).populate('venueRef', '_id');
 
-    const ticketsSold = bookings.length;
-    const totalRevenue = bookings.reduce((sum, b) => {
+    let filtered = bookings;
+    if (status === 'current') {
+      filtered = bookings.filter(b =>
+        (b.status === 'confirmed' || b.status === 'pending') &&
+        (b.type !== 'venue' || b.venueRef !== null)
+      );
+    } else if (status === 'past') {
+      filtered = bookings.filter(b =>
+        b.status === 'cancelled' ||
+        (b.type === 'venue' && b.venueRef === null)
+      );
+    }
+
+    const ticketsSold = filtered.length;
+
+    const totalRevenue = filtered.reduce((sum, b) => {
       const price = b.details?.price || 0;
       return sum + parseFloat(price.toString().replace(/[^0-9.]/g, '') || 0);
     }, 0);
 
     const venueCounts = {};
-    bookings.forEach(b => {
+    filtered.forEach(b => {
       const name = b.details?.name || b.details?.venue;
       if (name) venueCounts[name] = (venueCounts[name] || 0) + 1;
     });
@@ -44,16 +54,19 @@ router.get('/metrics-data', verifyToken, requireRole('staff'), async (req, res) 
     const topVenue = Object.entries(venueCounts)
       .sort((a, b) => b[1] - a[1])[0]?.[0] || '—';
 
-    const venueUsage = Object.entries(venueCounts).map(([name, count]) => ({ name, bookings: count }));
+    const venueUsage = Object.entries(venueCounts).map(([name, count]) => ({
+      name,
+      bookings: count
+    }));
 
     const ticketType = [
-      { type: 'Confirmed', value: bookings.filter(b => b.status === 'confirmed').length },
-      { type: 'Pending', value: bookings.filter(b => b.status === 'pending').length },
-      { type: 'Cancelled', value: bookings.filter(b => b.status === 'cancelled').length }
+      { type: 'Confirmed', value: filtered.filter(b => b.status === 'confirmed').length },
+      { type: 'Pending', value: filtered.filter(b => b.status === 'pending').length },
+      { type: 'Cancelled', value: filtered.filter(b => b.status === 'cancelled').length }
     ];
 
     const revenueTrendMap = {};
-    bookings.forEach(b => {
+    filtered.forEach(b => {
       const day = new Date(b.createdAt).toLocaleDateString();
       const price = parseFloat(b.details?.price?.replace(/[^0-9.]/g, '') || 0);
       revenueTrendMap[day] = (revenueTrendMap[day] || 0) + price;

@@ -39,11 +39,12 @@ router.get('/venues', async (req, res) => {
 
 router.post('/venues', verifyToken, requireRole('staff'), async (req, res) => {
   const { name, date, capacity, availability, price, image } = req.body;
+  const defaultSlots = ["8:00", "10:00", "12:00", "14:00", "16:00"];
 
   if (!name || !date) return res.status(400).json({ error: 'Missing venue data' });
 
   try {
-    const venue = new Venue({ name, date, capacity, availability, price, image });
+    const venue = new Venue({ name, date, capacity, availability, price, image, details: { slots: defaultSlots } });
     await venue.save();
     res.status(201).json({ message: 'Venue added', venue });
   } catch (err) {

@@ -34,7 +34,7 @@ router.get('/availability/venue/:id', async (req, res) => {
 router.get('/availability/event/:id', async (req, res) => {
   try {
     const eventId = decodeURIComponent(req.params.id);
-
+    const [name, date, time] = eventId.split('__');
     const confirmedBookings = await Booking.find({
       itemId: eventId,
       type: 'event',
@@ -42,14 +42,19 @@ router.get('/availability/event/:id', async (req, res) => {
     });
 
     const takenSeats = new Set(confirmedBookings.map(b => b.details?.seat));
-    const any = confirmedBookings[0];
-    const capacity = parseInt(any?.details?.capacity || 24);
+
+    let capacity = parseInt(confirmedBookings[0]?.details?.capacity || 0);
+
+    if (!capacity) {
+      const venue = await Venue.findOne({ name: new RegExp(`^${name}$`, 'i'), date });
+      capacity = parseInt(venue?.capacity || 24);
+    }
 
     const seats = Array.from({ length: capacity }).map((_, i) => {
-      const seatId = i + 1;
+      const seatId = (i + 1).toString();
       return {
-        id: seatId.toString(),
-        status: takenSeats.has(seatId.toString()) ? 'booked' : 'available'
+        id: seatId,
+        status: takenSeats.has(seatId) ? 'booked' : 'available'
       };
     });
 

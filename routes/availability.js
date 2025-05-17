@@ -1,9 +1,5 @@
 // availability.js - Real-time availability logic
 
-// GET /api/availability/event/:itemId → returns 30-seat map
-// GET /api/availability/venue/:itemId → returns 5 standard slots
-// Seat/slot status is calculated based on confirmed bookings
-
 const express = require('express');
 const Booking = require('../models/Booking');
 const Venue = require('../models/Venue');
@@ -13,13 +9,10 @@ router.get('/availability/venue/:id', async (req, res) => {
   try {
     const [name, rawDate] = decodeURIComponent(req.params.id).split('__');
     const date = rawDate;
-    const venue = await Venue.findOne({
-      name: new RegExp(`^${name}$`, 'i'),
-      date
-    });
+    const venue = await Venue.findOne({ name: new RegExp(`^${name}$`, 'i'), date });
     if (!venue) return res.status(404).json({ error: 'Venue not found' });
 
-    const bookings = await Booking.find({ itemId: req.params.id, status: 'confirmed' });
+    const bookings = await Booking.find({ itemId: venue._id.toString(), status: 'confirmed' });
 
     const bookedTimes = new Set(bookings.flatMap(b =>
       Array.isArray(b.details?.slots) ? b.details.slots : [b.details?.time]
@@ -34,9 +27,6 @@ router.get('/availability/venue/:id', async (req, res) => {
     res.json({ slots: updatedSlots });
   } catch (err) {
     console.error('Availability error:', err);
-    console.log('Loaded venue:', Venue?.name, venue?.date);
-    console.log('Slots:', Venue.details?.slots);
-    console.log('Returning slots:', updatedSlots);
     res.status(500).json({ error: 'Failed to load availability' });
   }
 });
@@ -52,12 +42,14 @@ router.get('/availability/event/:id', async (req, res) => {
     });
 
     const takenSeats = new Set(confirmedBookings.map(b => b.details?.seat));
+    const any = confirmedBookings[0];
+    const capacity = parseInt(any?.details?.capacity || 24);
 
-    const seats = Array.from({ length: 24 }).map((_, i) => {
-      const seatId = String.fromCharCode(65 + Math.floor(i / 6)) + ((i % 6) + 1);
+    const seats = Array.from({ length: capacity }).map((_, i) => {
+      const seatId = i + 1;
       return {
-        id: seatId,
-        status: takenSeats.has(seatId) ? 'booked' : 'available'
+        id: seatId.toString(),
+        status: takenSeats.has(seatId.toString()) ? 'booked' : 'available'
       };
     });
 

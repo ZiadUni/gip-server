@@ -8,7 +8,6 @@ const verifyToken = require('../middleware/auth');
 
 const router = express.Router();
 
-// Create a booking
 router.post('/bookings', verifyToken, async (req, res) => {
   const { type, itemId, details } = req.body;
 
@@ -25,13 +24,13 @@ router.post('/bookings', verifyToken, async (req, res) => {
       user: req.user.id,
       type,
       itemId,
+      venueRef: type === 'venue' ? itemId : undefined,
       details,
       status: 'confirmed'
     });
 
     await booking.save();
 
-    // Update venue status if all its time slots are now booked
     if (type === 'venue') {
       const venue = await Venue.findById(itemId);
       const allSlots = venue.details?.slots?.length || 1;
@@ -61,18 +60,24 @@ router.post('/bookings', verifyToken, async (req, res) => {
   }
 });
 
-// Get bookings for the logged-in user
 router.get('/bookings', verifyToken, async (req, res) => {
   try {
-    const bookings = await Booking.find({ user: req.user.id }).sort({ createdAt: -1 });
-    res.json(bookings);
+    const bookings = await Booking.find({ user: req.user.id })
+      .populate('venueRef', '_id')
+      .sort({ createdAt: -1 });
+
+    const filtered = bookings.filter(b => {
+      if (b.type !== 'venue') return true;
+      return b.venueRef !== null;
+    });
+
+    res.json(filtered);
   } catch (err) {
     console.error('Booking fetch error:', err);
     res.status(500).json({ error: 'Failed to load bookings' });
   }
 });
 
-// Cancel a booking
 router.delete('/bookings/:id', verifyToken, async (req, res) => {
   try {
     const booking = await Booking.findOne({ _id: req.params.id, user: req.user.id });

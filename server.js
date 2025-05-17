@@ -12,7 +12,6 @@ console.log('Loaded MONGO_URI:', process.env.MONGO_URI);
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// ✅ Improved CORS for production (Vercel/Render)
 app.use(cors({
   origin: '*',
   methods: ['GET', 'POST', 'DELETE', 'PATCH'],
@@ -21,7 +20,6 @@ app.use(cors({
 
 app.use(express.json());
 
-// Routes
 const authRoutes = require('./routes/auth');
 app.use('/api', authRoutes);
 
@@ -37,12 +35,14 @@ app.use('/api', notificationRoutes);
 const availabilityRoutes = require('./routes/availability');
 app.use('/api', availabilityRoutes);
 
-// Root test route
+const userRoutes = require('./routes/users');
+app.use('/api', userRoutes);
+
+
 app.get('/', (req, res) => {
   res.send('Backend is running!');
 });
 
-// MongoDB connection
 mongoose.connect(process.env.MONGO_URI, {
   useNewUrlParser: true,
   useUnifiedTopology: true

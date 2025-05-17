@@ -11,7 +11,7 @@ const verifyToken = require('../middleware/auth');
 const requireRole = require('../middleware/requireRole');
 
 router.get('/metrics-data', verifyToken, requireRole('staff'), async (req, res) => {
-  const { from, to, type = 'all', status = 'current' } = req.query;
+  const { from, to, type = 'all', status = 'current', venue } = req.query;
 
   const fromDate = from ? new Date(from) : null;
   const toDate = to ? new Date(to) : null;
@@ -23,30 +23,36 @@ router.get('/metrics-data', verifyToken, requireRole('staff'), async (req, res) 
   };
 
   try {
-    const bookings = await Booking.find(query).populate('venueRef', '_id');
+    let bookings = await Booking.find(query).populate('venueRef', '_id');
 
-    let filtered = bookings;
     if (status === 'current') {
-      filtered = bookings.filter(b =>
+      bookings = bookings.filter(b =>
         (b.status === 'confirmed' || b.status === 'pending') &&
         (b.type !== 'venue' || b.venueRef !== null)
       );
     } else if (status === 'past') {
-      filtered = bookings.filter(b =>
+      bookings = bookings.filter(b =>
         b.status === 'cancelled' ||
         (b.type === 'venue' && b.venueRef === null)
       );
     }
 
-    const ticketsSold = filtered.length;
+    if (venue) {
+      bookings = bookings.filter(b => {
+        const name = b.details?.name || b.details?.venue || '';
+        return name.toLowerCase() === venue.toLowerCase();
+      });
+    }
 
-    const totalRevenue = filtered.reduce((sum, b) => {
+    const ticketsSold = bookings.length;
+
+    const totalRevenue = bookings.reduce((sum, b) => {
       const price = b.details?.price || 0;
       return sum + parseFloat(price.toString().replace(/[^0-9.]/g, '') || 0);
     }, 0);
 
     const venueCounts = {};
-    filtered.forEach(b => {
+    bookings.forEach(b => {
       const name = b.details?.name || b.details?.venue;
       if (name) venueCounts[name] = (venueCounts[name] || 0) + 1;
     });
@@ -60,13 +66,13 @@ router.get('/metrics-data', verifyToken, requireRole('staff'), async (req, res) 
     }));
 
     const ticketType = [
-      { type: 'Confirmed', value: filtered.filter(b => b.status === 'confirmed').length },
-      { type: 'Pending', value: filtered.filter(b => b.status === 'pending').length },
-      { type: 'Cancelled', value: filtered.filter(b => b.status === 'cancelled').length }
+      { type: 'Confirmed', value: bookings.filter(b => b.status === 'confirmed').length },
+      { type: 'Pending', value: bookings.filter(b => b.status === 'pending').length },
+      { type: 'Cancelled', value: bookings.filter(b => b.status === 'cancelled').length }
     ];
 
     const revenueTrendMap = {};
-    filtered.forEach(b => {
+    bookings.forEach(b => {
       const day = new Date(b.createdAt).toLocaleDateString();
       const price = parseFloat(b.details?.price?.replace(/[^0-9.]/g, '') || 0);
       revenueTrendMap[day] = (revenueTrendMap[day] || 0) + price;

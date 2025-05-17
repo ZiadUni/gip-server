@@ -11,7 +11,8 @@ const router = express.Router();
 
 router.get('/availability/venue/:id', async (req, res) => {
   try {
-    const venue = await Venue.findById(req.params.id);
+    const [name, date] = decodeURIComponent(req.params.id).split('__');
+    const venue = await Venue.findOne({ name, date });
     if (!venue) return res.status(404).json({ error: 'Venue not found' });
 
     const bookings = await Booking.find({ itemId: req.params.id, status: 'confirmed' });

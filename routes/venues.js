@@ -4,6 +4,7 @@
 const express = require('express');
 const router = express.Router();
 const Venue = require('../models/Venue');
+const Booking = require('../models/Booking');
 const verifyToken = require('../middleware/auth');
 const requireRole = require('../middleware/requireRole');
 

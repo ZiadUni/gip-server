@@ -1,12 +1,9 @@
 // bookings.js - Handles event/venue booking and cancellation
 
-// POST /api/bookings → stores booking (requires JWT)
-// GET /api/bookings → fetches current user's bookings
-// DELETE /api/bookings/:id → cancels a booking + triggers notification checks
-
 const express = require('express');
 const Booking = require('../models/Booking');
 const Notification = require('../models/Notification');
+const Venue = require('../models/Venue'); // ⬅️ NEW
 const verifyToken = require('../middleware/auth');
 
 const router = express.Router();
@@ -32,6 +29,11 @@ router.post('/bookings', verifyToken, async (req, res) => {
     });
 
     await booking.save();
+
+    if (type === 'venue') {
+      await Venue.findByIdAndUpdate(itemId, { status: 'Booked' });
+    }
+
     res.status(201).json({ message: 'Booking saved', booking });
   } catch (err) {
     console.error('Booking error:', err);
@@ -50,23 +52,19 @@ router.get('/bookings', verifyToken, async (req, res) => {
 });
 
 router.delete('/bookings/:id', verifyToken, async (req, res) => {
-  console.log('DELETE attempt for ID:', req.params.id);
-  console.log('User ID from token:', req.user.id);
-
   try {
     const booking = await Booking.findOne({ _id: req.params.id, user: req.user.id });
 
     if (!booking) {
-      console.log('Booking not found or doesn’t belong to user');
       return res.status(404).json({ error: 'Booking not found' });
     }
 
     booking.status = 'cancelled';
     await booking.save();
 
-    console.log('✅ Booking cancelled:', booking._id);
-    console.log('➡️  Booking itemId:', booking.itemId);
-    console.log('➡️  Booking type:', booking.type);
+    if (booking.type === 'venue') {
+      await Venue.findByIdAndUpdate(booking.itemId, { status: 'Available' });
+    }
 
     const matchingNotifications = await Notification.find({
       itemId: booking.itemId,
@@ -74,10 +72,7 @@ router.delete('/bookings/:id', verifyToken, async (req, res) => {
       status: 'pending'
     });
 
-    console.log(`🔔 Found ${matchingNotifications.length} matching notification(s)`);
-
     for (const n of matchingNotifications) {
-      console.log(`🔔 Updating notification for user ${n.user}`);
       n.status = 'sent';
       await n.save();
     }

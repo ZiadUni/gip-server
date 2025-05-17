@@ -38,6 +38,8 @@ app.use('/api', availabilityRoutes);
 const userRoutes = require('./routes/users');
 app.use('/api', userRoutes);
 
+const venueRoutes = require('./routes/venues');
+app.use('/api', venueRoutes);
 
 app.get('/', (req, res) => {
   res.send('Backend is running!');

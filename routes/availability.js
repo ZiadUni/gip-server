@@ -31,6 +31,9 @@ router.get('/availability/venue/:id', async (req, res) => {
     res.json({ slots: updatedSlots });
   } catch (err) {
     console.error('Availability error:', err);
+    console.log('Loaded venue:', Venue?.name, venue?.date);
+    console.log('Slots:', Venue.details?.slots);
+    console.log('Returning slots:', updatedSlots);
     res.status(500).json({ error: 'Failed to load availability' });
   }
 });

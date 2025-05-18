@@ -119,7 +119,7 @@ router.delete('/bookings/:id', verifyToken, async (req, res) => {
       if (Array.isArray(booking.details?.slots)) {
         for (const slotTime of booking.details.slots) {
           const matchFields = {
-            itemId: `${booking.details.name}__${booking.details.date}`,
+            itemId: booking.itemId,
             type: 'venue',
             status: 'pending',
             'details.time': slotTime
@@ -160,6 +160,7 @@ router.delete('/bookings/:id', verifyToken, async (req, res) => {
   } catch (err) {
     console.error('Cancel error:', err);
     res.status(500).json({ error: 'Failed to cancel booking' });
+    console.log('[NOTIFY DEBUG]', matchFields);
   }
 });
 

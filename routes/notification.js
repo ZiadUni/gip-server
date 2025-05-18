@@ -79,13 +79,11 @@ router.delete('/bookings/:id', verifyToken, async (req, res) => {
 // POST /api/notifications — subscribe to seat or slot alerts
 router.post('/notification', verifyToken, async (req, res) => {
     const { type, itemId, details } = req.body;
-  
     if (!type || !itemId) {
       return res.status(400).json({ error: 'Missing type or itemId' });
     }
-  
+    
     try {
-      
     const query = {
       user: req.user.id,
       type,
@@ -99,25 +97,22 @@ router.post('/notification', verifyToken, async (req, res) => {
       query['details.time'] = details.time;
     }
     const existing = await Notification.findOne(query);
-  
       if (existing) {
         return res.status(409).json({ message: 'Already subscribed for this item' });
       }
-  
       const notification = new Notification({
         user: req.user.id,
         type,
         itemId,
         details
       });
-  
       await notification.save();
       res.status(201).json({ message: 'Subscribed for availability notifications' });
     } catch (err) {
       console.error('Notification subscribe error:', err);
       res.status(500).json({ error: 'Server error' });
-    }
-  });
+  }
+});
 
 // GET /api/notifications — fetch triggered notifications for current user
 router.get('/notification', verifyToken, async (req, res) => {

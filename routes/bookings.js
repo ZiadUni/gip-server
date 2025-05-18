@@ -99,7 +99,7 @@ router.post('/bookings', verifyToken, async (req, res) => {
       user: req.user.id,
       type,
       itemId,
-      venueRef: type === 'venue' ? itemId : undefined,
+      venueRef: type === 'venue' ? req.body.venueId : undefined,
       details,
       status: 'pending',
       expiresAt: new Date(Date.now() + 15 * 60 * 1000)

@@ -118,7 +118,7 @@ router.delete('/bookings/:id', verifyToken, async (req, res) => {
     }
 
     const matchFields = {
-      itemId: booking.itemId,
+      itemId: `${booking.details.name}__${booking.details.date}`,
       type: booking.type,
       status: 'pending'
     };

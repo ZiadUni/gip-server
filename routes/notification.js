@@ -85,13 +85,20 @@ router.post('/notification', verifyToken, async (req, res) => {
     }
   
     try {
-      // Prevent duplicate subscriptions
-      const existing = await Notification.findOne({
-        user: req.user.id,
-        type,
-        itemId,
-        status: 'pending'
-      });
+      
+    const query = {
+      user: req.user.id,
+      type,
+      itemId,
+      status: 'pending'
+    };
+    if (details?.seat) {
+      query['details.seat'] = details.seat;
+    }
+    if (details?.time) {
+      query['details.time'] = details.time;
+    }
+    const existing = await Notification.findOne(query);
   
       if (existing) {
         return res.status(409).json({ message: 'Already subscribed for this item' });

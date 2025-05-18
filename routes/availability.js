@@ -12,17 +12,39 @@ router.get('/availability/venue/:id', async (req, res) => {
     const venue = await Venue.findOne({ name: new RegExp(`^${name}$`, 'i'), date });
     if (!venue) return res.status(404).json({ error: 'Venue not found' });
 
-    const bookings = await Booking.find({ itemId: venue._id.toString(), status: 'confirmed' });
+    const bookings = await Booking.find({
+      type: 'venue',
+      'details.name': venue.name,
+      'details.date': venue.date,
+      status: { $in: ['pending', 'confirmed'] }
+    });
 
-    const bookedTimes = new Set(bookings.flatMap(b =>
-      Array.isArray(b.details?.slots) ? b.details.slots : [b.details?.time]
-    ));
+    const statusMap = {};
 
-    const updatedSlots = (venue.details?.slots || []).map((slot, idx) => ({
-      id: `slot${idx + 1}`,
-      time: slot,
-      status: bookedTimes.has(slot) ? 'booked' : 'available'
-    }));
+    bookings.forEach(b => {
+      const slotTime = b.details?.time;
+      if (slotTime) {
+        if (!statusMap[slotTime]) {
+          statusMap[slotTime] = b.status;
+        } else if (b.status === 'confirmed') {
+          statusMap[slotTime] = 'confirmed';
+        }
+      }
+    });
+
+    const updatedSlots = (venue.details?.slots || []).map((slot, idx) => {
+      const status = statusMap[slot] === 'confirmed'
+        ? 'booked'
+        : statusMap[slot] === 'pending'
+        ? 'pending'
+        : 'available';
+
+      return {
+        id: `slot${idx + 1}`,
+        time: slot,
+        status
+      };
+    });
 
     res.json({ slots: updatedSlots });
   } catch (err) {
@@ -42,7 +64,6 @@ router.get('/availability/event/:id', async (req, res) => {
     });
 
     const takenSeats = new Set(confirmedBookings.map(b => b.details?.seat));
-
     let capacity = parseInt(confirmedBookings[0]?.details?.capacity || 0);
 
     if (!capacity) {

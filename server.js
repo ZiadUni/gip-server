@@ -6,6 +6,8 @@ const mongoose = require('mongoose');
 const express = require('express');
 const cors = require('cors');
 require('dotenv').config();
+const cron = require('node-cron');
+const cleanupExpiredBookings = require('./tasks/cleanup');
 
 console.log('Loaded MONGO_URI:', process.env.MONGO_URI);
 
@@ -57,4 +59,9 @@ mongoose.connect(process.env.MONGO_URI, {
 })
 .catch(err => {
   console.error('MongoDB connection error:', err);
+});
+
+cron.schedule('* * * * *', async () => {
+  console.log('[CRON] Running expired booking cleanup...');
+  await cleanupExpiredBookings();
 });

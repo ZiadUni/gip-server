@@ -39,9 +39,46 @@ router.post('/bookings', verifyToken, async (req, res) => {
   }
 
   try {
-    console.log(`[Booking Attempt] User: ${req.user.id}, Type: ${type}, Item: ${itemId}, Time: ${details.time}, Seat: ${details.seat}`);
-
     const cutoff = new Date(Date.now() - 15 * 60 * 1000);
+
+    if (type === 'venue' && Array.isArray(details.slots)) {
+      const bookings = [];
+
+      for (const slotTime of details.slots) {
+        const composedItemId = `${details.name}__${details.date}`;
+
+        const existing = await Booking.findOne({
+          user: req.user.id,
+          itemId: composedItemId,
+          status: { $ne: 'cancelled' },
+          createdAt: { $gte: cutoff },
+          'details.time': slotTime
+        });
+
+        if (existing) {
+          console.warn(`[Duplicate Blocked] User ${req.user.id} already has booking for ${slotTime}`);
+          continue;
+        }
+
+        const booking = new Booking({
+          user: req.user.id,
+          type,
+          itemId: composedItemId,
+          venueRef: itemId,
+          details: {
+            ...details,
+            time: slotTime
+          },
+          status: 'pending',
+          expiresAt: new Date(Date.now() + 15 * 60 * 1000)
+        });
+
+        await booking.save();
+        bookings.push(booking);
+      }
+
+      return res.status(201).json({ message: 'Venue slots booked', bookings });
+    }
 
     const existing = await Booking.findOne({
       user: req.user.id,
@@ -54,7 +91,7 @@ router.post('/bookings', verifyToken, async (req, res) => {
     });
 
     if (existing) {
-      console.warn(`[Duplicate Blocked - Active Reservation] User: ${req.user.id} already reserved ${itemId}`);
+      console.warn(`[Duplicate Blocked] User: ${req.user.id} already reserved ${itemId}`);
       return res.status(409).json({ error: 'This slot or seat is still reserved. Try again shortly.' });
     }
 

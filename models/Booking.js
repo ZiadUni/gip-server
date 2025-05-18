@@ -32,12 +32,20 @@ const bookingSchema = new mongoose.Schema({
   status: {
     type: String,
     enum: ['confirmed', 'pending', 'cancelled'],
-    default: 'confirmed'
+    default: 'pending'
   },
   createdAt: {
     type: Date,
     default: Date.now
+  },
+  expiresAt: {
+    type: Date,
+    default: null
   }
+}, {
+  timestamps: true
 });
+
+bookingSchema.index({ expiresAt: 1 }, { expireAfterSeconds: 0 });
 
 module.exports = mongoose.model('Booking', bookingSchema);

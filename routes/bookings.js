@@ -135,7 +135,7 @@ router.delete('/bookings/:id', verifyToken, async (req, res) => {
       }
     } else {
       const matchFields = {
-        itemId: `${booking.details.name}__${booking.details.date}`,
+        itemId: booking.itemId,
         type: booking.type,
         status: 'pending'
       };
@@ -160,7 +160,6 @@ router.delete('/bookings/:id', verifyToken, async (req, res) => {
   } catch (err) {
     console.error('Cancel error:', err);
     res.status(500).json({ error: 'Failed to cancel booking' });
-    console.log('[NOTIFY DEBUG]', matchFields);
   }
 });
 

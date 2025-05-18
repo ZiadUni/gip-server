@@ -128,13 +128,9 @@ router.delete('/bookings/:id', verifyToken, async (req, res) => {
     }
 
     let slotTimeToMatch = null;
-
-    if (booking.type === 'venue' && booking.details?.time) {
-      let slotTimeToMatch = null;
       if (booking.type === 'venue' && Array.isArray(booking.details?.slots)) {
-      slotTimeToMatch = booking.details.slots.map(t => t.trim());
-    }
-    }
+        slotTimeToMatch = booking.details.slots.map(t => t.trim());
+      }
 
     const matchingNotifications = await Notification.find({
       itemId: booking.itemId,

@@ -6,10 +6,10 @@ const verifyToken = require('../middleware/auth');
 
 // POST /api/feedback
 router.post('/feedback', verifyToken, async (req, res) => {
-  const { bookingId, rating, comment } = req.body;
+  const { bookingId, rating, comment, feedbackType = 'rating' } = req.body;
 
-  if (!bookingId || !rating) {
-    return res.status(400).json({ error: 'Booking and rating required' });
+  if (!bookingId || (feedbackType === 'rating' && !rating)) {
+    return res.status(400).json({ error: 'Booking ID and rating (for rating feedback) are required.' });
   }
 
   try {
@@ -19,8 +19,9 @@ router.post('/feedback', verifyToken, async (req, res) => {
     const feedback = new Feedback({
       user: req.user.id,
       booking: bookingId,
-      rating,
-      comment
+      rating: feedbackType === 'rating' ? rating : undefined,
+      comment,
+      feedbackType
     });
 
     await feedback.save();

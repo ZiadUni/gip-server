@@ -117,11 +117,20 @@ router.delete('/bookings/:id', verifyToken, async (req, res) => {
       }
     }
 
-    const matchingNotifications = await Notification.find({
+    const matchFields = {
       itemId: booking.itemId,
       type: booking.type,
       status: 'pending'
-    });
+    };
+
+    if (booking.details?.seat) {
+      matchFields['details.seat'] = booking.details.seat;
+    }
+    if (booking.details?.time) {
+      matchFields['details.time'] = booking.details.time;
+    }
+
+    const matchingNotifications = await Notification.find(matchFields);
 
     for (const n of matchingNotifications) {
       n.status = 'sent';

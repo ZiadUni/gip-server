@@ -126,11 +126,22 @@ router.delete('/bookings/:id', verifyToken, async (req, res) => {
     if (booking.details?.seat) {
       matchFields['details.seat'] = booking.details.seat;
     }
-    if (booking.details?.time) {
-      matchFields['details.time'] = booking.details.time;
+    
+    let slotTimeToMatch = null;
+
+    if (booking.type === 'venue' && booking.details?.time) {
+      const [start, end] = booking.details.time.split(' - ');
+      slotTimeToMatch = [start?.trim(), end?.trim()];
     }
 
-    const matchingNotifications = await Notification.find(matchFields);
+    const matchingNotifications = await Notification.find({
+      itemId: booking.itemId,
+      type: booking.type,
+      status: 'pending',
+      ...(slotTimeToMatch ? {
+        'details.time': { $in: slotTimeToMatch }
+      } : {})
+    });
 
     for (const n of matchingNotifications) {
       n.status = 'sent';

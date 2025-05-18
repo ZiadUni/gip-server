@@ -127,23 +127,20 @@ router.delete('/bookings/:id', verifyToken, async (req, res) => {
       matchFields['details.seat'] = booking.details.seat;
     }
 
-    let slotTimeToMatch = null;
-      if (booking.type === 'venue' && Array.isArray(booking.details?.slots)) {
-        slotTimeToMatch = booking.details.slots.map(t => t.trim());
-      }
+    if (booking.details?.time) {
+      matchFields['details.time'] = booking.details.time;
+    }
 
-    const matchingNotifications = await Notification.find({
-      itemId: booking.itemId,
-      type: booking.type,
-      status: 'pending',
-      ...(slotTimeToMatch ? {
-        'details.time': { $in: slotTimeToMatch }
-      } : {})
-    });
+    console.log('[Notification Debug] Finding notifications with:', matchFields);
+
+    const matchingNotifications = await Notification.find(matchFields);
+
+    console.log(`[Notification Debug] Found ${matchingNotifications.length} matching notifications.`);
 
     for (const n of matchingNotifications) {
       n.status = 'sent';
       await n.save();
+      console.log(`[Notification Sent] ID: ${n._id} → User: ${n.user}`);
     }
 
     res.json({ message: 'Booking cancelled and notifications triggered', booking });

@@ -22,20 +22,22 @@ router.get('/availability/venue/:id', async (req, res) => {
     const statusMap = {};
 
     bookings.forEach(b => {
-      const slotTime = b.details?.time;
+      const slotTime = (b.details?.time || '').trim();
       if (slotTime) {
-        if (!statusMap[slotTime]) {
-          statusMap[slotTime] = b.status;
+        const key = slotTime;
+        if (!statusMap[key]) {
+          statusMap[key] = b.status;
         } else if (b.status === 'confirmed') {
-          statusMap[slotTime] = 'confirmed';
+          statusMap[key] = 'confirmed';
         }
       }
     });
 
     const updatedSlots = (venue.details?.slots || []).map((slot, idx) => {
-      const status = statusMap[slot] === 'confirmed'
+      const key = slot.trim();
+      const status = statusMap[key] === 'confirmed'
         ? 'booked'
-        : statusMap[slot] === 'pending'
+        : statusMap[key] === 'pending'
         ? 'pending'
         : 'available';
 

@@ -150,7 +150,10 @@ router.delete('/bookings/:id', verifyToken, async (req, res) => {
       });
 
       if (activeBookings.length === 0) {
-        await Venue.findByIdAndUpdate(booking.itemId, { status: 'Available' });
+      await Venue.findOneAndUpdate(
+        { name: booking.details.name, date: booking.details.date },
+        { status: 'Available' }
+      );
       }
 
       if (Array.isArray(booking.details?.slots)) {

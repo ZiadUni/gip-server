@@ -115,54 +115,46 @@ router.delete('/bookings/:id', verifyToken, async (req, res) => {
       if (activeBookings.length === 0) {
         await Venue.findByIdAndUpdate(booking.itemId, { status: 'Available' });
       }
-    }
 
-  if (booking.type === 'venue' && Array.isArray(booking.details?.slots)) {
-    for (const slotTime of booking.details.slots) {
+      if (Array.isArray(booking.details?.slots)) {
+        for (const slotTime of booking.details.slots) {
+          const matchFields = {
+            itemId: `${booking.details.name}__${booking.details.date}`,
+            type: 'venue',
+            status: 'pending',
+            'details.time': slotTime
+          };
+
+          const found = await Notification.findOne(matchFields);
+
+          if (found) {
+            found.status = 'sent';
+            await found.save();
+          }
+        }
+      }
+    } else {
       const matchFields = {
         itemId: `${booking.details.name}__${booking.details.date}`,
-        type: 'venue',
-        status: 'pending',
-        'details.time': slotTime
+        type: booking.type,
+        status: 'pending'
       };
 
-      console.log('[Notification Debug] Matching slot:', slotTime);
+      if (booking.details?.seat) {
+        matchFields['details.seat'] = booking.details.seat;
+      }
 
-      const found = await Notification.findOne(matchFields);
+      if (booking.details?.time) {
+        matchFields['details.time'] = booking.details.time;
+      }
 
-      if (found) {
-        found.status = 'sent';
-        await found.save();
-        console.log(`[Notification Sent] ID: ${found._id} → User: ${found.user}`);
+      const matchingNotifications = await Notification.find(matchFields);
+
+      for (const n of matchingNotifications) {
+        n.status = 'sent';
+        await n.save();
       }
     }
-  } else {
-    const matchFields = {
-      itemId: `${booking.details.name}__${booking.details.date}`,
-      type: booking.type,
-      status: 'pending'
-    };
-
-    if (booking.details?.seat) {
-      matchFields['details.seat'] = booking.details.seat;
-    }
-
-    if (booking.details?.time) {
-      matchFields['details.time'] = booking.details.time;
-    }
-
-    console.log('[Notification Debug] Finding notifications with:', matchFields);
-
-    const matchingNotifications = await Notification.find(matchFields);
-
-    console.log(`[Notification Debug] Found ${matchingNotifications.length} matching notifications.`);
-
-    for (const n of matchingNotifications) {
-      n.status = 'sent';
-      await n.save();
-      console.log(`[Notification Sent] ID: ${n._id} → User: ${n.user}`);
-    }
-  }
 
     res.json({ message: 'Booking cancelled and notifications triggered', booking });
   } catch (err) {

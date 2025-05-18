@@ -117,6 +117,26 @@ router.delete('/bookings/:id', verifyToken, async (req, res) => {
       }
     }
 
+  if (booking.type === 'venue' && Array.isArray(booking.details?.slots)) {
+    for (const slotTime of booking.details.slots) {
+      const matchFields = {
+        itemId: `${booking.details.name}__${booking.details.date}`,
+        type: 'venue',
+        status: 'pending',
+        'details.time': slotTime
+      };
+
+      console.log('[Notification Debug] Matching slot:', slotTime);
+
+      const found = await Notification.findOne(matchFields);
+
+      if (found) {
+        found.status = 'sent';
+        await found.save();
+        console.log(`[Notification Sent] ID: ${found._id} → User: ${found.user}`);
+      }
+    }
+  } else {
     const matchFields = {
       itemId: `${booking.details.name}__${booking.details.date}`,
       type: booking.type,
@@ -142,6 +162,7 @@ router.delete('/bookings/:id', verifyToken, async (req, res) => {
       await n.save();
       console.log(`[Notification Sent] ID: ${n._id} → User: ${n.user}`);
     }
+  }
 
     res.json({ message: 'Booking cancelled and notifications triggered', booking });
   } catch (err) {

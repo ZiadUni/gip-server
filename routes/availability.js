@@ -38,8 +38,6 @@ router.get('/availability/venue/:id', async (req, res) => {
       }
     });
 
-    console.log('⏰ Slot Status Map:', statusMap);
-    console.log('⏳ Venue Slots:', venue.details?.slots);
     const updatedSlots = (venue.details?.slots || []).map((slot, idx) => {
       const key = slot.trim();
       const status = statusMap[key] === 'confirmed'

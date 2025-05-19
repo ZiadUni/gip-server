@@ -3,7 +3,14 @@ const mongoose = require('mongoose');
 const feedbackSchema = new mongoose.Schema({
   user: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
   booking: { type: mongoose.Schema.Types.ObjectId, ref: 'Booking', required: true },
-  rating: { type: Number, required: true, min: 1, max: 5 },
+  rating: {
+  type: Number,
+  min: 1,
+  max: 5,
+  required: function () {
+    return this.feedbackType === 'rating';
+  }
+},
   comment: { type: String, maxlength: 1000 },
   createdAt: { type: Date, default: Date.now },
   feedbackType: {

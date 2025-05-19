@@ -13,7 +13,13 @@ router.post('/feedback', verifyToken, async (req, res) => {
   }
 
   try {
-    const booking = await Booking.findOne({ _id: bookingId, user: req.user.id });
+    const booking = await Booking.findOne({
+    _id: bookingId,
+    $or: [
+        { user: req.user.id },
+        { status: 'cancelled' }
+    ]
+    });
     if (!booking) return res.status(403).json({ error: 'Invalid booking' });
 
     const feedback = new Feedback({

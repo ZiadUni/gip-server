@@ -46,9 +46,6 @@ app.use('/api', venueRoutes);
 const feedbackRoutes = require('./routes/feedback');
 app.use('/api', feedbackRoutes);
 
-const chatRoutes = require('./routes/chat');
-app.use('/api', chatRoutes);
-
 app.get('/', (req, res) => {
   res.send('Backend is running!');
 });

@@ -12,6 +12,7 @@ const feedbackSchema = new mongoose.Schema({
   }
 },
   comment: { type: String, maxlength: 1000 },
+  flagged: { type: Boolean, default: false },
   createdAt: { type: Date, default: Date.now },
   feedbackType: {
   type: String,

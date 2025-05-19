@@ -55,4 +55,30 @@ router.get('/feedback', verifyToken, requireRole('staff'), async (req, res) => {
   }
 });
 
+router.delete('/feedback/:id', verifyToken, requireRole('staff'), async (req, res) => {
+  try {
+    const feedback = await Feedback.findByIdAndDelete(req.params.id);
+    if (!feedback) return res.status(404).json({ error: 'Feedback not found' });
+    res.json({ message: 'Feedback deleted' });
+  } catch (err) {
+    console.error('Feedback delete error:', err);
+    res.status(500).json({ error: 'Failed to delete feedback' });
+  }
+});
+
+router.patch('/feedback/:id/flag', verifyToken, requireRole('staff'), async (req, res) => {
+  try {
+    const feedback = await Feedback.findById(req.params.id);
+    if (!feedback) return res.status(404).json({ error: 'Feedback not found' });
+
+    feedback.flagged = !feedback.flagged;
+    await feedback.save();
+
+    res.json({ message: `Feedback ${feedback.flagged ? 'flagged' : 'unflagged'}` });
+  } catch (err) {
+    console.error('Feedback flag error:', err);
+    res.status(500).json({ error: 'Failed to flag feedback' });
+  }
+});
+
 module.exports = router;

@@ -8,7 +8,6 @@ const cors = require('cors');
 require('dotenv').config();
 const cron = require('node-cron');
 const cleanupExpiredBookings = require('./tasks/cleanup');
-const chatRoutes = require('./routes/chat');
 
 console.log('Loaded MONGO_URI:', process.env.MONGO_URI);
 
@@ -47,7 +46,8 @@ app.use('/api', venueRoutes);
 const feedbackRoutes = require('./routes/feedback');
 app.use('/api', feedbackRoutes);
 
-app.use('/chat', chatRoutes);
+const chatRoutes = require('./routes/chat');
+app.use('/api/chat', chatRoutes);
 
 app.get('/', (req, res) => {
   res.send('Backend is running!');

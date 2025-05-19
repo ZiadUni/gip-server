@@ -64,7 +64,7 @@ router.post('/bookings', verifyToken, async (req, res) => {
           user: req.user.id,
           type,
           itemId: composedItemId,
-          venueRef: itemId,
+          venueRef: req.body.venueId,
           details: {
             ...details,
             time: slotTime
@@ -150,28 +150,23 @@ router.delete('/bookings/:id', verifyToken, async (req, res) => {
       });
 
       if (activeBookings.length === 0) {
-      await Venue.findOneAndUpdate(
-        { name: booking.details.name, date: booking.details.date },
-        { status: 'Available' }
-      );
+        await Venue.findOneAndUpdate(
+          { name: booking.details.name, date: booking.details.date },
+          { status: 'Available' }
+        );
       }
 
-      if (Array.isArray(booking.details?.slots)) {
-        for (const slotTime of booking.details.slots) {
-          const matchFields = {
-            itemId: booking.itemId,
-            type: 'venue',
-            status: 'pending',
-            'details.time': slotTime
-          };
+      const notifMatch = {
+        itemId: booking.itemId,
+        type: 'venue',
+        status: 'pending',
+        'details.time': booking.details.time
+      };
 
-          const found = await Notification.findOne(matchFields);
-
-          if (found) {
-            found.status = 'sent';
-            await found.save();
-          }
-        }
+      const foundNotif = await Notification.findOne(notifMatch);
+      if (foundNotif) {
+        foundNotif.status = 'sent';
+        await foundNotif.save();
       }
     } else {
       const matchFields = {

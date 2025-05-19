@@ -9,7 +9,12 @@ router.get('/availability/venue/:id', async (req, res) => {
   try {
     const [name, rawDate] = decodeURIComponent(req.params.id).split('__');
     const date = rawDate;
-    const venue = await Venue.findOne({ name: new RegExp(`^${name}$`, 'i'), date });
+
+    const venue = await Venue.findOne({
+      name: new RegExp(`^${name}$`, 'i'),
+      date
+    });
+
     if (!venue) return res.status(404).json({ error: 'Venue not found' });
 
     const bookings = await Booking.find({

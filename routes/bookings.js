@@ -198,4 +198,18 @@ router.delete('/bookings/:id', verifyToken, async (req, res) => {
   }
 });
 
+router.get('/admin/bookings', verifyToken, requireRole('staff'), async (req, res) => {
+  try {
+    const bookings = await Booking.find()
+      .populate('user', 'name email')
+      .populate('venueRef', 'name')
+      .sort({ createdAt: -1 });
+
+    res.json(bookings);
+  } catch (err) {
+    console.error('Admin booking fetch error:', err);
+    res.status(500).json({ error: 'Failed to load bookings' });
+  }
+});
+
 module.exports = router;

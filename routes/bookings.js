@@ -5,6 +5,7 @@ const Booking = require('../models/Booking');
 const Notification = require('../models/Notification');
 const Venue = require('../models/Venue');
 const verifyToken = require('../middleware/auth');
+const requireRole = require('../middleware/requireRole');
 
 const router = express.Router();
 
@@ -197,7 +198,6 @@ router.delete('/bookings/:id', verifyToken, async (req, res) => {
     res.status(500).json({ error: 'Failed to cancel booking' });
   }
 });
-
 
 router.get('/admin/bookings', verifyToken, requireRole('staff'), async (req, res) => {
   try {

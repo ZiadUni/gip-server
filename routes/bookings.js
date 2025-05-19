@@ -198,6 +198,7 @@ router.delete('/bookings/:id', verifyToken, async (req, res) => {
   }
 });
 
+
 router.get('/admin/bookings', verifyToken, requireRole('staff'), async (req, res) => {
   try {
     const bookings = await Booking.find()

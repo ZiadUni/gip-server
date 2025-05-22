@@ -11,7 +11,6 @@ const User = require('../models/User');
 
 const router = express.Router();
 
-// POST /api/register
 router.post('/register', async (req, res) => {
   const { name, email, password, wantsToBeOrganizer } = req.body;
 
@@ -39,7 +38,6 @@ router.post('/register', async (req, res) => {
   }
 });
 
-// POST /api/login
 router.post('/login', async (req, res) => {
   const { email, password } = req.body;
   console.log('LOGIN ATTEMPT:', req.body);

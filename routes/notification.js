@@ -47,7 +47,6 @@ router.get('/bookings', verifyToken, async (req, res) => {
   }
 });
 
-// DELETE /api/bookings/:id - Cancel a booking and trigger notifications
 router.delete('/bookings/:id', verifyToken, async (req, res) => {
   try {
     const booking = await Booking.findOne({ _id: req.params.id, user: req.user.id });
@@ -56,7 +55,6 @@ router.delete('/bookings/:id', verifyToken, async (req, res) => {
     booking.status = 'cancelled';
     await booking.save();
 
-    // Notify any users subscribed to this item
     const notification = await Notification.find({
       itemId: booking.itemId,
       type: booking.type,

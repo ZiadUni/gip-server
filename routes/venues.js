@@ -7,6 +7,7 @@ const Venue = require('../models/Venue');
 const Booking = require('../models/Booking');
 const verifyToken = require('../middleware/auth');
 const requireRole = require('../middleware/requireRole');
+const { updateVenue } = require('../controllers/venueController');
 
 router.get('/venues', async (req, res) => {
   try {
@@ -79,5 +80,7 @@ router.delete('/venues/:id', verifyToken, requireRole('staff'), async (req, res)
     res.status(500).json({ error: res.__('venues.venueDeleteFailed') }); 
   }
 });
+
+router.patch('/:id', verifyToken, requireRole('staff'), updateVenue);
 
 module.exports = router;

@@ -91,6 +91,8 @@
     "venueAdded": "تمت إضافة القاعة",
     "venueAddFailed": "فشل في إضافة القاعة",
     "venueDeleted": "تم حذف القاعة",
-    "venueDeleteFailed": "فشل في حذف القاعة"
+    "venueDeleteFailed": "فشل في حذف القاعة",
+    "updated": "تم تحديث القاعة بنجاح",
+    "updateFail": "فشل في تحديث القاعة"
   }
 }

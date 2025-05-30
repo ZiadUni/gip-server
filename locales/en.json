@@ -91,6 +91,8 @@
         "venueAdded": "Venue added",
         "venueAddFailed": "Failed to add venue",
         "venueDeleted": "Venue deleted",
-        "venueDeleteFailed": "Failed to delete venue"
+        "venueDeleteFailed": "Failed to delete venue",
+        "updated": "Venue updated successfully",
+        "updateFail": "Failed to update venue"
     }
 }

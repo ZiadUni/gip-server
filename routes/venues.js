@@ -81,6 +81,6 @@ router.delete('/venues/:id', verifyToken, requireRole('staff'), async (req, res)
   }
 });
 
-router.patch('/:id', verifyToken, requireRole('staff'), updateVenue);
+router.patch('/venues/:id', verifyToken, requireRole('staff'), updateVenue);
 
 module.exports = router;

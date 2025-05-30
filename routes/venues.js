@@ -27,7 +27,7 @@ router.get('/venues', async (req, res) => {
 
       return {
         ...venue.toObject(),
-        status: isFullyBooked ? res.__('venues.booked') : res.__('venues.available')
+        status: isFullyBooked ? "Booked" : "Available"
       };
     });
 

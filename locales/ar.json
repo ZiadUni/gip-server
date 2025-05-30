@@ -35,7 +35,8 @@
     "serverError": "خطأ في الخادم",
     "failedLoadBookings": "فشل في تحميل الحجوزات",
     "cancelledNotifications": "تم إلغاء الحجز وتم إرسال الإشعارات",
-    "cancelFail": "فشل في إلغاء الحجز"
+    "cancelFail": "فشل في إلغاء الحجز",
+    "failedLoadEvents": "فشل تحميل قائمة الفعاليات."
   },
 
   "feedback": {

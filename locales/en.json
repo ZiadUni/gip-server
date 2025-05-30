@@ -35,7 +35,8 @@
         "serverError": "Server error",
         "failedLoadBookings": "Failed to load bookings",
         "cancelledNotifications": "Booking cancelled and notifications triggered",
-        "cancelFail": "Failed to cancel booking"
+        "cancelFail": "Failed to cancel booking",
+        "failedLoadEvents": "Failed to load events"
     },
 
     "feedback": {

@@ -132,6 +132,22 @@ router.get('/bookings', verifyToken, async (req, res) => {
   }
 });
 
+router.get('/events/public', async (req, res) => {
+  try {
+    const bookings = await Booking.find({
+      type: 'venue',
+      status: 'confirmed',
+      'details.event': { $exists: true }
+    }).sort({ createdAt: -1 });
+
+    res.json(bookings);
+  } catch (err) {
+    console.error('Public event fetch error:', err);
+    res.status(500).json({ error: res.__('bookings.failedLoadEvents') });
+  }
+});
+
+
 router.delete('/bookings/:id', verifyToken, async (req, res) => {
   try {
     const booking = await Booking.findOne({ _id: req.params.id, user: req.user.id });

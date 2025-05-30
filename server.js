@@ -15,13 +15,31 @@ console.log('Loaded MONGO_URI:', process.env.MONGO_URI);
 const app = express();
 const PORT = process.env.PORT || 5000;
 
+const allowedOrigins = ['https://gip-frontend.vercel.app'];
+
 app.use(cors({
-  origin: '*',
+  origin: function (origin, callback) {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('CORS not allowed for this origin'));
+    }
+  },
+  credentials: true,
   methods: ['GET', 'POST', 'DELETE', 'PATCH'],
   allowedHeaders: ['Content-Type', 'Authorization']
 }));
 
+app.options('*', cors());
+
 app.use(express.json());
+app.use(i18n.init);
+
+// Optional: Logging
+app.use((req, res, next) => {
+  console.log(`[${req.method}] ${req.path}`);
+  next();
+});
 
 const authRoutes = require('./routes/auth');
 app.use('/api', authRoutes);
@@ -50,8 +68,6 @@ app.use('/api', feedbackRoutes);
 app.get('/', (req, res) => {
   res.send('Backend is running!');
 });
-
-app.use(i18n.init);
 
 mongoose.connect(process.env.MONGO_URI, {
   useNewUrlParser: true,

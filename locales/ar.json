@@ -1,0 +1,96 @@
+{
+  "auth": {
+    "accessDenied": "تم رفض الوصول. لم يتم تقديم رمز الدخول.",
+    "badToken": "رمز الدخول غير صالح أو منتهي الصلاحية."
+  },
+
+  "reqRole": {
+    "noPerms": "تم رفض الوصول. لا توجد صلاحيات كافية."
+  },
+
+  "auth2": {
+    "emailUsed": "البريد الإلكتروني مستخدم بالفعل",
+    "registerSuccess": "تم تسجيل المستخدم بنجاح",
+    "error1": "خطأ في الخادم",
+    "badCreds": "بيانات اعتماد غير صالحة",
+    "loginSuccess": "تم تسجيل الدخول بنجاح"
+  },
+
+  "availability": {
+    "noVenue": "لم يتم العثور على القاعة",
+    "loadFail": "فشل في تحميل التوافر",
+    "seatLoadFail": "فشل في تحميل المقاعد"
+  },
+
+  "bookings": {
+    "notFound": "لم يتم العثور على الحجز",
+    "bookingConfirm": "تم تأكيد الحجز",
+    "invalidUpdate": "تحديث حالة غير صالح",
+    "failedUpdateBooking": "فشل في تحديث الحجز",
+    "missingDetails": "بيانات الحجز مفقودة",
+    "missingPerms": "فقط المنظمين أو الموظفين يمكنهم حجز القاعات",
+    "successfulBooking": "تم حجز الفترات الزمنية للقاعة",
+    "alreadyReserved": "هذا المقعد أو الفتحة لا يزال محجوزًا. حاول مرة أخرى لاحقًا.",
+    "pendingSaved": "تم حفظ الحجز المعلق",
+    "serverError": "خطأ في الخادم",
+    "failedLoadBookings": "فشل في تحميل الحجوزات",
+    "cancelledNotifications": "تم إلغاء الحجز وتم إرسال الإشعارات",
+    "cancelFail": "فشل في إلغاء الحجز"
+  },
+
+  "feedback": {
+    "requiredStuff": "معرّف الحجز والتقييم (لتعليقات التقييم) مطلوبان.",
+    "invalidBooking": "حجز غير صالح",
+    "submitted": "تم إرسال الملاحظات",
+    "failedSave": "فشل في حفظ الملاحظات",
+    "failedFetch": "فشل في جلب الملاحظات",
+    "notFound": "لم يتم العثور على الملاحظات",
+    "deleted": "تم حذف الملاحظات",
+    "failedDelete": "فشل في حذف الملاحظات",
+    "failedFlag": "فشل في الإبلاغ عن الملاحظات",
+    "flagged": "تم الإبلاغ عن الملاحظات",
+    "unflagged": "تم إلغاء الإبلاغ عن الملاحظات"
+  },
+
+  "metrics": {
+    "failedGenerate": "فشل في توليد الإحصائيات"
+  },
+
+  "notifs": {
+    "missingDetails": "بيانات الحجز مفقودة",
+    "bookingSaved": "تم حفظ الحجز",
+    "serverError": "خطأ في الخادم",
+    "failedLoad": "فشل في تحميل الحجوزات",
+    "missingStuff": "نوع أو معرف العنصر مفقود",
+    "alreadySubbed": "أنت مشترك بالفعل في هذا العنصر",
+    "subSuccess": "تم الاشتراك في إشعارات التوافر",
+    "failedLoadNotifs": "فشل في تحميل الإشعارات",
+    "notif404": "لم يتم العثور على الإشعار أو تم عرضه بالفعل",
+    "successMarked": "تم تحديد الإشعار كمقروء",
+    "failedUpdateNotifs": "فشل في تحديث الإشعار",
+    "failedCancel": "فشل في إلغاء الحجز",
+    "booking404": "لم يتم العثور على الحجز",
+    "successCancel": "تم إلغاء الحجز"
+  },
+
+  "users": {
+    "failedFetch": "فشل في جلب المستخدمين",
+    "invalidRole": "دور غير صالح",
+    "user404": "المستخدم غير موجود",
+    "roleUpdateSuccess": "تم تحديث دور المستخدم",
+    "roleUpdateFail": "فشل في تحديث الدور",
+    "userDeleteSuccess": "تم حذف المستخدم بنجاح",
+    "userDeleteFail": "فشل في حذف المستخدم"
+  },
+
+  "venues": {
+    "booked": "محجوز",
+    "available": "متاح",
+    "loadFail": "فشل في تحميل القاعات",
+    "missingData": "اسم القاعة أو التاريخ مفقود",
+    "venueAdded": "تمت إضافة القاعة",
+    "venueAddFailed": "فشل في إضافة القاعة",
+    "venueDeleted": "تم حذف القاعة",
+    "venueDeleteFailed": "فشل في حذف القاعة"
+  }
+}

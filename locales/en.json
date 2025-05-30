@@ -1,0 +1,96 @@
+{
+    "auth": {
+        "accessDenied": "Access denied. No token provided.",
+        "badToken": "Invalid or expired token."
+    },
+
+    "reqRole": {
+        "noPerms": "Access denied. Insufficient permissions."
+    },
+
+    "auth2": {
+        "emailUsed": "Email already in use",
+        "registerSuccess": "User registered successfully",
+        "error1": "Server error",
+        "badCreds": "Invalid credentials",
+        "loginSuccess": "Login successful"
+    },
+
+    "availability": {
+        "noVenue": "Venue not found",
+        "loadFail": "Failed to load availability",
+        "seatLoadFail": "Failed to load seats"
+    },
+
+    "bookings": {
+        "notFound": "Booking not found",
+        "bookingConfirm": "Booking confirmed",
+        "invalidUpdate": "Invalid status update",
+        "failedUpdateBooking": "Failed to update booking",
+        "missingDetails": "Missing booking details",
+        "missingPerms": "Only organizers or staff can book venues",
+        "successfulBooking": "Venue slots booked",
+        "alreadyReserved": "This slot or seat is still reserved. Try again shortly.",
+        "pendingSaved": "Pending booking saved",
+        "serverError": "Server error",
+        "failedLoadBookings": "Failed to load bookings",
+        "cancelledNotifications": "Booking cancelled and notifications triggered",
+        "cancelFail": "Failed to cancel booking"
+    },
+
+    "feedback": {
+        "requiredStuff": "Booking ID and rating (for rating feedback) are required.",
+        "invalidBooking": "Invalid booking",
+        "submitted": "Feedback submitted",
+        "failedSave": "Failed to save feedback",
+        "failedFetch": "Failed to fetch feedback",
+        "notFound": "Feedback not found",
+        "deleted": "Feedback deleted",
+        "failedDelete": "Failed to delete feedback",
+        "failedFlag": "Failed to flag feedback",
+        "flagged": "Feedback flagged",
+        "unflagged": "Feedback unflagged"
+    },
+
+    "metrics": {
+        "failedGenerate": "Failed to generate metrics"
+    },
+
+    "notifs": {
+        "missingDetails": "Missing booking details",
+        "bookingSaved": "Booking saved",
+        "serverError": "Server error",
+        "failedLoad": "Failed to load bookings",
+        "missingStuff": "Missing type or itemId",
+        "alreadySubbed": "Already subscribed for this item",
+        "subSuccess": "Subscribed for availability notifications",
+        "failedLoadNotifs": "Failed to load notifications",
+        "notif404": "Notification not found or already viewed",
+        "successMarked": "Notification marked as viewed",
+        "failedUpdateNotifs": "Failed to update notification",
+        "failedCancel": "Failed to cancel booking",
+        "booking404": "Booking not found",
+        "successCancel": "Booking cancelled"
+    },
+
+    "users": {
+        "failedFetch": "Failed to fetch users",
+        "invalidRole": "Invalid role",
+        "user404": "User not found",
+        "roleUpdateSuccess": "User role updated ",
+        "roleUpdateFail":"Failed to update role",
+        "userDeleteSuccess": "User deleted successfully",
+        "userDeleteFail": "Failed to delete user"
+    },
+
+    "venues": {
+        "booked": "Booked",
+        "available": "Available",
+        "loadFail": "Failed to load venues",
+        "missingData": "Missing venue name or date",
+        "venueAdded": "Venue added",
+        "venueAddFailed": "Failed to add venue",
+        "venueDeleted": "Venue deleted",
+        "venueDeleteFailed": "Failed to delete venue"
+    }
+}

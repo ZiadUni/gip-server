@@ -94,7 +94,7 @@ router.get('/metrics-data', verifyToken, requireRole('staff'), async (req, res) 
     });
   } catch (err) {
     console.error('Metrics error:', err);
-    return res.status(500).json({ error: 'Failed to generate metrics' });
+    return res.status(500).json({ error: res.__('metrics.failedGenerate') });
   }
 });
 

@@ -12,7 +12,7 @@ router.get('/users', verifyToken, requireRole('staff'), async (req, res) => {
     res.json(users);
   } catch (err) {
     console.error('User fetch error:', err);
-    res.status(500).json({ error: 'Failed to fetch users' });
+    res.status(500).json({ error: res.__('users.failedFetch') });
   }
 });
 
@@ -21,21 +21,21 @@ router.patch('/users/:id/role', verifyToken, requireRole('staff'), async (req, r
   const { role } = req.body;
 
   if (!['visitor', 'organizer', 'staff'].includes(role)) {
-    return res.status(400).json({ error: 'Invalid role' });
+    return res.status(400).json({ error: res.__('users.invalidRole') });
   }
 
   try {
     const user = await User.findById(id);
-    if (!user) return res.status(404).json({ error: 'User not found' });
+    if (!user) return res.status(404).json({ error: res.__('users.user404') });
 
     user.role = role;
     user.organizerRequest = false;
     await user.save();
 
-    res.json({ message: 'User role updated', user: { name: user.name, email: user.email, role: user.role } });
+    res.json({ message: res.__('users.roleUpdateSuccess'), user: { name: user.name, email: user.email, role: user.role } });
   } catch (err) {
     console.error('User role update error:', err);
-    res.status(500).json({ error: 'Failed to update role' });
+    res.status(500).json({ error: res.__('users.roleUpdateFail') });
   }
 });
 
@@ -44,12 +44,12 @@ router.delete('/users/:id', verifyToken, requireRole('staff'), async (req, res) 
 
   try {
     const user = await User.findByIdAndDelete(id);
-    if (!user) return res.status(404).json({ error: 'User not found' });
+    if (!user) return res.status(404).json({ error: res.__('users.user404') });
 
-    res.json({ message: 'User deleted successfully' });
+    res.json({ message: res.__('users.userDeleteSuccess') });
   } catch (err) {
     console.error('User delete error:', err);
-    res.status(500).json({ error: 'Failed to delete user' });
+    res.status(500).json({ error: res.__('users.userDeleteFail') });
   }
 });
 

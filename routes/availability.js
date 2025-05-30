@@ -15,7 +15,7 @@ router.get('/availability/venue/:id', async (req, res) => {
       date
     });
 
-    if (!venue) return res.status(404).json({ error: 'Venue not found' });
+    if (!venue) return res.status(404).json({ error: res.__('availability.noVenue') });
 
     const bookings = await Booking.find({
       type: 'venue',
@@ -56,7 +56,7 @@ router.get('/availability/venue/:id', async (req, res) => {
     res.json({ slots: updatedSlots });
   } catch (err) {
     console.error('Availability error:', err);
-    res.status(500).json({ error: 'Failed to load availability' });
+    res.status(500).json({ error: res.__('availability.loadFail') });
   }
 });
 
@@ -89,7 +89,7 @@ router.get('/availability/event/:id', async (req, res) => {
     res.json({ seats });
   } catch (err) {
     console.error('Event seat availability error:', err);
-    res.status(500).json({ error: 'Failed to load seats' });
+    res.status(500).json({ error: res.__('availability.seatLoadFail') });
   }
 });
 

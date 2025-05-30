@@ -12,19 +12,19 @@ const router = express.Router();
 router.patch('/bookings/:id', verifyToken, async (req, res) => {
   try {
     const booking = await Booking.findOne({ _id: req.params.id, user: req.user.id });
-    if (!booking) return res.status(404).json({ error: 'Booking not found' });
+    if (!booking) return res.status(404).json({ error: res.__('bookings.notFound') });
 
     if (req.body.status === 'confirmed') {
       booking.status = 'confirmed';
       booking.expiresAt = null;
       await booking.save();
-      return res.json({ message: 'Booking confirmed', booking });
+      return res.json({ message: res.__('bookings.bookingConfirm'), booking });
     }
 
-    return res.status(400).json({ error: 'Invalid status update' });
+    return res.status(400).json({ error: res.__('bookings.invalidUpdate') });
   } catch (err) {
     console.error('Booking update error:', err);
-    res.status(500).json({ error: 'Failed to update booking' });
+    res.status(500).json({ error: res.__('bookings.failedUpdateBooking') });
   }
 });
 
@@ -32,11 +32,11 @@ router.post('/bookings', verifyToken, async (req, res) => {
   const { type, itemId, details } = req.body;
 
   if (!type || !itemId || !details) {
-    return res.status(400).json({ error: 'Missing booking details' });
+    return res.status(400).json({ error: res.__('bookings.missingDetails') });
   }
 
   if (type === 'venue' && req.user.role !== 'organizer' && req.user.role !== 'staff') {
-    return res.status(403).json({ error: 'Only organizers or staff can book venues' });
+    return res.status(403).json({ error: res.__('bookings.missingPerms') });
   }
 
   try {
@@ -78,7 +78,7 @@ router.post('/bookings', verifyToken, async (req, res) => {
         bookings.push(booking);
       }
 
-      return res.status(201).json({ message: 'Venue slots booked', bookings });
+      return res.status(201).json({ message: res.__('bookings.successfulBooking'), bookings });
     }
 
     const existing = await Booking.findOne({
@@ -93,7 +93,7 @@ router.post('/bookings', verifyToken, async (req, res) => {
 
     if (existing) {
       console.warn(`[Duplicate Blocked] User: ${req.user.id} already reserved ${itemId}`);
-      return res.status(409).json({ error: 'This slot or seat is still reserved. Try again shortly.' });
+      return res.status(409).json({ error: res.__('bookings.alreadyReserved') });
     }
 
     const booking = new Booking({
@@ -107,10 +107,10 @@ router.post('/bookings', verifyToken, async (req, res) => {
     });
 
     await booking.save();
-    res.status(201).json({ message: 'Pending booking saved', booking });
+    res.status(201).json({ message: res.__('bookings.pendingSaved'), booking });
   } catch (err) {
     console.error('Booking error:', err);
-    res.status(500).json({ error: 'Server error' });
+    res.status(500).json({ error: res.__('bookings.serverError') });
   }
 });
 
@@ -128,7 +128,7 @@ router.get('/bookings', verifyToken, async (req, res) => {
     res.json(filtered);
   } catch (err) {
     console.error('Booking fetch error:', err);
-    res.status(500).json({ error: 'Failed to load bookings' });
+    res.status(500).json({ error: res.__('bookings.failedLoadBookings') });
   }
 });
 
@@ -137,7 +137,7 @@ router.delete('/bookings/:id', verifyToken, async (req, res) => {
     const booking = await Booking.findOne({ _id: req.params.id, user: req.user.id });
 
     if (!booking) {
-      return res.status(404).json({ error: 'Booking not found' });
+      return res.status(404).json({ error: res.__('bookings.notFound') });
     }
 
     booking.status = 'cancelled';
@@ -192,10 +192,10 @@ router.delete('/bookings/:id', verifyToken, async (req, res) => {
       }
     }
 
-    res.json({ message: 'Booking cancelled and notifications triggered', booking });
+    res.json({ message: res.__('bookings.cancelledNotifications'), booking });
   } catch (err) {
     console.error('Cancel error:', err);
-    res.status(500).json({ error: 'Failed to cancel booking' });
+    res.status(500).json({ error: res.__('bookings.cancelFail') });
   }
 });
 
@@ -209,7 +209,7 @@ router.get('/admin/bookings', verifyToken, requireRole('staff'), async (req, res
     res.json(bookings);
   } catch (err) {
     console.error('Admin booking fetch error:', err);
-    res.status(500).json({ error: 'Failed to load bookings' });
+    res.status(500).json({ error: res.__('bookings.failedLoadBookings') });
   }
 });
 

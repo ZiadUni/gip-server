@@ -17,7 +17,7 @@ router.post('/register', async (req, res) => {
   try {
     const existing = await User.findOne({ email });
     if (existing) {
-      return res.status(400).json({ error: 'Email already in use' });
+      return res.status(400).json({ error: res.__('auth2.emailUsed') });
     }
 
     const hashed = await bcrypt.hash(password, 10);
@@ -32,9 +32,9 @@ router.post('/register', async (req, res) => {
 
     await user.save();
 
-    res.status(201).json({ message: 'User registered successfully' });
+    res.status(201).json({ message: res.__('auth2.registerSuccess') });
   } catch (err) {
-    res.status(500).json({ error: 'Server error' });
+    res.status(500).json({ error: res.__('auth2.error1') });
   }
 });
 
@@ -44,10 +44,10 @@ router.post('/login', async (req, res) => {
 
   try {
     const user = await User.findOne({ email });
-    if (!user) return res.status(400).json({ error: 'Invalid credentials' });
+    if (!user) return res.status(400).json({ error: res.__('auth2.badCreds') });
 
     const isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch) return res.status(400).json({ error: 'Invalid credentials' });
+    if (!isMatch) return res.status(400).json({ error: res.__('auth2.badCreds') });
 
     const token = jwt.sign(
       { id: user._id, email: user.email, role: user.role },
@@ -56,7 +56,7 @@ router.post('/login', async (req, res) => {
     );
 
     res.json({
-      message: 'Login successful',
+      message: res.__('auth2.loginSuccess'),
       token,
       user: {
         name: user.name,
@@ -67,7 +67,7 @@ router.post('/login', async (req, res) => {
     });
   } catch (err) {
     console.error('LOGIN ERROR:', err);
-    res.status(500).json({ error: 'Server error' });
+    res.status(500).json({ error: res.__('auth2.error1') });
   }
 });
 

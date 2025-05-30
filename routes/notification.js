@@ -11,12 +11,11 @@ const verifyToken = require('../middleware/auth');
 
 const router = express.Router();
 
-// POST /api/bookings - Save a new booking
 router.post('/bookings', verifyToken, async (req, res) => {
   const { type, itemId, details } = req.body;
 
   if (!type || !itemId || !details) {
-    return res.status(400).json({ error: 'Missing booking details' });
+    return res.status(400).json({ error: res.__('notifs.missingDetails') });
   }
 
   try {
@@ -29,28 +28,27 @@ router.post('/bookings', verifyToken, async (req, res) => {
     });
 
     await booking.save();
-    res.status(201).json({ message: 'Booking saved', booking });
+    res.status(201).json({ message: res.__('notifs.bookingSaved'), booking });
   } catch (err) {
     console.error('Booking error:', err);
-    res.status(500).json({ error: 'Server error' });
+    res.status(500).json({ error: res.__('notifs.serverError') });
   }
 });
 
-// GET /api/bookings - Get bookings for logged-in user
 router.get('/bookings', verifyToken, async (req, res) => {
   try {
     const bookings = await Booking.find({ user: req.user.id }).sort({ createdAt: -1 });
     res.json(bookings);
   } catch (err) {
     console.error('Booking fetch error:', err);
-    res.status(500).json({ error: 'Failed to load bookings' });
+    res.status(500).json({ error: res.__('notifs.failedLoad') });
   }
 });
 
 router.delete('/bookings/:id', verifyToken, async (req, res) => {
   try {
     const booking = await Booking.findOne({ _id: req.params.id, user: req.user.id });
-    if (!booking) return res.status(404).json({ error: 'Booking not found' });
+    if (!booking) return res.status(404).json({ error: res.__('notifs.booking404') });
 
     booking.status = 'cancelled';
     await booking.save();
@@ -67,18 +65,17 @@ router.delete('/bookings/:id', verifyToken, async (req, res) => {
       await n.save();
     }
 
-    res.json({ message: 'Booking cancelled', booking });
+    res.json({ message: res.__('notifs.successCancel'), booking });
   } catch (err) {
     console.error('Cancel error:', err);
-    res.status(500).json({ error: 'Failed to cancel booking' });
+    res.status(500).json({ error: res.__('notifs.failedCancel') });
   }
 });
 
-// POST /api/notifications — subscribe to seat or slot alerts
 router.post('/notification', verifyToken, async (req, res) => {
     const { type, itemId, details } = req.body;
     if (!type || !itemId) {
-      return res.status(400).json({ error: 'Missing type or itemId' });
+      return res.status(400).json({ error: res.__('notifs.missingStuff') });
     }
     
     try {
@@ -96,7 +93,7 @@ router.post('/notification', verifyToken, async (req, res) => {
     }
     const existing = await Notification.findOne(query);
       if (existing) {
-        return res.status(409).json({ message: 'Already subscribed for this item' });
+        return res.status(409).json({ message: res.__('notifs.alreadySubbed') });
       }
       const notification = new Notification({
         user: req.user.id,
@@ -105,14 +102,13 @@ router.post('/notification', verifyToken, async (req, res) => {
         details
       });
       await notification.save();
-      res.status(201).json({ message: 'Subscribed for availability notifications' });
+      res.status(201).json({ message: res.__('notifs.subSuccess') });
     } catch (err) {
       console.error('Notification subscribe error:', err);
-      res.status(500).json({ error: 'Server error' });
+      res.status(500).json({ error: res.__('notifs.serverError') });
   }
 });
 
-// GET /api/notifications — fetch triggered notifications for current user
 router.get('/notification', verifyToken, async (req, res) => {
     try {
       const notification = await Notification.find({
@@ -123,11 +119,10 @@ router.get('/notification', verifyToken, async (req, res) => {
       res.json(notification);
     } catch (err) {
       console.error('Notification fetch error:', err);
-      res.status(500).json({ error: 'Failed to load notifications' });
+      res.status(500).json({ error: res.__('notifs.failedLoadNotifs') });
     }
   });
 
-  // PATCH /api/notification/:id/viewed — optional: mark as viewed
 router.patch('/notification/:id/viewed', verifyToken, async (req, res) => {
   try {
     const updated = await Notification.findOneAndUpdate(
@@ -137,13 +132,13 @@ router.patch('/notification/:id/viewed', verifyToken, async (req, res) => {
     );
 
     if (!updated) {
-      return res.status(404).json({ error: 'Notification not found or already viewed' });
+      return res.status(404).json({ error: res.__('notifs.notif404') });
     }
 
-    res.json({ message: 'Notification marked as viewed', notification: updated });
+    res.json({ message: res.__('notifs.successMarked'), notification: updated });
   } catch (err) {
     console.error('Notification mark viewed error:', err);
-    res.status(500).json({ error: 'Failed to update notification' });
+    res.status(500).json({ error: res.__('notifs.failedUpdateNotifs') });
   }
 });
 

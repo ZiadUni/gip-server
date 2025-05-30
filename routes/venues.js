@@ -26,14 +26,14 @@ router.get('/venues', async (req, res) => {
 
       return {
         ...venue.toObject(),
-        status: isFullyBooked ? 'Booked' : 'Available'
+        status: isFullyBooked ? res.__('venues.booked') : res.__('venues.available')
       };
     });
 
     res.json(updatedVenues);
   } catch (err) {
     console.error('Venue status update error:', err);
-    res.status(500).json({ error: 'Failed to load venues' });
+    res.status(500).json({ error: res.__('venues.loadFail') });
   }
 });
 
@@ -41,7 +41,7 @@ router.post('/venues', verifyToken, requireRole('staff'), async (req, res) => {
   const { name, date, capacity, availability, price, image } = req.body;
 
   if (!name || !date) {
-    return res.status(400).json({ error: 'Missing venue name or date' });
+    return res.status(400).json({ error: res.__('venues.missingData') });
   }
 
   const defaultSlots = [
@@ -65,18 +65,18 @@ router.post('/venues', verifyToken, requireRole('staff'), async (req, res) => {
     });
 
     await venue.save();
-    res.status(201).json({ message: 'Venue added', venue });
+    res.status(201).json({ message: res.__('venues.venueAdded'), venue });
   } catch (err) {
-    res.status(500).json({ error: 'Failed to add venue' });
+    res.status(500).json({ error: res.__('venues.venueAddFailed') });
   }
 });
 
 router.delete('/venues/:id', verifyToken, requireRole('staff'), async (req, res) => {
   try {
     await Venue.findByIdAndDelete(req.params.id);
-    res.json({ message: 'Venue deleted' });
+    res.json({ message: res.__('venues.venueDeleted') });
   } catch (err) {
-    res.status(500).json({ error: 'Failed to delete venue' });
+    res.status(500).json({ error: res.__('venues.venueDeleteFailed') }); 
   }
 });
 

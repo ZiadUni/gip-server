@@ -31,6 +31,24 @@ router.get('/venues', async (req, res) => {
       };
     });
 
+    console.log(`[GET] /venues → Found ${updatedVenues.length} venues`);
+
+    if (!updatedVenues.length) {
+      console.warn('⚠️ No venues found in DB. Returning fallback test venue.');
+      return res.json([
+        {
+          _id: "dummy123",
+          name: "Test Auditorium",
+          date: "2025-12-01",
+          capacity: 150,
+          price: 300,
+          image: "https://via.placeholder.com/600x400?text=Test+Venue",
+          availability: "Available",
+          status: "Available"
+        }
+      ]);
+    }
+
     res.json(updatedVenues);
   } catch (err) {
     console.error('Venue status update error:', err);

@@ -150,7 +150,14 @@ router.get('/events/public', async (req, res) => {
 
 router.delete('/bookings/:id', verifyToken, async (req, res) => {
   try {
-    const booking = await Booking.findOne({ _id: req.params.id, user: req.user.id });
+    const isAdmin = req.user.role === 'staff' || req.user.role === 'admin';
+
+    
+    const booking = await Booking.findOne(
+      isAdmin
+        ? { _id: req.params.id }
+        : { _id: req.params.id, user: req.user.id }
+    );
 
     if (!booking) {
       return res.status(404).json({ error: res.__('bookings.notFound') });

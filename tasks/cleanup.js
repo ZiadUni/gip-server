@@ -21,6 +21,11 @@ const cleanupExpiredBookings = async () => {
     console.log(`[CLEANUP] Found ${expired.length} expired bookings.`);
 
     for (const booking of expired) {
+      if (!booking.expiresAt || isNaN(new Date(booking.expiresAt))) {
+        console.warn(`[CLEANUP] Skipping invalid booking ${booking._id} (missing or bad expiresAt)`);
+        continue;
+      }
+
       booking.status = 'cancelled';
       await booking.save();
 

@@ -18,7 +18,9 @@ router.get('/venues', async (req, res) => {
       const allSlots = venue.details?.slots || [];
       const totalSlots = allSlots.length;
 
-      const venueBookings = bookings.filter(b => b.itemId == venue._id);
+      const venueId = `${venue.name}__${venue.date}`;
+      const venueBookings = bookings.filter(b => b.itemId === venueId);
+
       const bookedSlotTimes = new Set(venueBookings.flatMap(b =>
         Array.isArray(b.details?.slots) ? b.details.slots : [b.details?.time]
       ));
